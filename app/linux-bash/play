@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# Test raw midi data
+# Haleeq Usman
+
+# data file
+INPUT=deb.mid.1.2
+
+S=0
+S2=0
+
+for (( c=0; c<3000; c++ ))
+do
+	# Note on
+	echo "-------------------------------------------------------------------------------"
+	val=$(echo "ibase=16; $(xxd -pu -l 3 -s ${S} -u < ${INPUT})" | bc)
+	val2=$(dd if=$INPUT bs=3 skip=$S2 count=1 2>/dev/null)
+
+	start_msg0=$((${val}>>16));
+
+	# reverse bits
+	tmp_val=0
+	tmp_val2=0
+	tmp_val3=0
+	i2=7
+	i3=4
+	for (( i=7; i>=0; i--))
+	do
+		(( tmp_val2 =  (($start_msg0 & (1<<i)) >> i) ))
+		(( shift_val = $i3 ))
+
+		(( tmp_val2 = $tmp_val2 << $i2 ))
+
+		(( tmp_val3 = $start_msg0 & $tmp_val2 ))
+
+		(( i2-- ))
+
+		if [[ $i2 -lt 3 ]]
+		then
+		    (( tmp_val =  $tmp_val | ($tmp_val3 << $shift_val) ))
+		else
+		    (( tmp_val =  $tmp_val | ($tmp_val3 >> $shift_val) ))
+		fi
+	done
+
+	start_code1=$(printf "x%02x" $tmp_val)
+	start_code2=$(echo -e "\\${start_code1}")
+	echo -ne "${start_code2}${val2}" | tee /dev/skel1 | hd
+
+	((S2++))
+
+	echo "<----------------------------------------------------------------------------->"
+	((S+=3))
+	sleep 0.1
+
+	#Note off
+	val=$(echo "ibase=16; $(xxd -pu -l 3 -s ${S} -u < ${INPUT})" | bc)
+	val2=$(dd if=$INPUT bs=3 skip=$S2 count=1 2>/dev/null) 
+
+	(( start_msg0=$((${val}>>16)) ))
+
+        # reverse bits
+        ((tmp_val=0))
+        ((tmp_val2=0))
+        ((tmp_val3=0))
+        ((i2=7))
+        ((i3=4))
+        for (( i=7; i>=0; i--))
+        do
+                (( tmp_val2 =  (($start_msg0 & (1<<i)) >> i) ))
+                (( shift_val = $i3 ))
+
+                (( tmp_val2 = $tmp_val2 << $i2 ))
+
+                (( tmp_val3 = $start_msg0 & $tmp_val2 ))
+
+                (( i2-- ))
+
+                if [[ $i2 -lt 3 ]]
+                then
+                    (( tmp_val =  $tmp_val | ($tmp_val3 << $shift_val) ))
+                else
+                    (( tmp_val =  $tmp_val | ($tmp_val3 >> $shift_val) ))
+                fi
+        done
+
+        start_code1=$(printf "x%02x" $tmp_val)
+        start_code2=$(echo -e "\\${start_code1}")
+        echo -ne "${start_code2}${val2}" | tee /dev/skel1 | hd
+
+        ((S2++))
+	echo "-------------------------------------------------------------------------------"
+	echo -e "\n\n\n"
+	((S+=3))
+done
