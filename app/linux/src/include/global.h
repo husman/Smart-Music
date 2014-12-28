@@ -28,11 +28,7 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-#include <alsa/asoundlib.h>
-
-FILE *midi_fp;
-unsigned char *prev_buffer, *buffer;
-int midi_fpos, buffer_len;
+//#include <alsa/asoundlib.h>
 
 typedef enum {
 	START,
