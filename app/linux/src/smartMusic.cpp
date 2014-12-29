@@ -159,8 +159,8 @@ int main(void)
 		start_t = clock();
 
 		midi_file file;
-		MidiFileDecoder *midi_file_decoder = new MidiFileDecoder(&file);
-		midi_file_decoder->parseFile("/Users/haleeq/Downloads/cl.mid");
+		MidiFileDecoder *midi_file_decoder = new MidiFileDecoder(&file, "/Users/haleeq/Downloads/rfy.mid");
+		file.tracks = midi_file_decoder->get_midi_tracks();
 		file.net_socket = net_socket;
 		file.remote_net_socket_in = remote_net_socket_in;
 		file.net_socket_len = net_socket_len;

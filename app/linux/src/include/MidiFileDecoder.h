@@ -8,11 +8,13 @@ private:
     midi_file *m_file;
     ByteReader *reader;
 
+    bool initialize();
+
 public:
     // Constructors
-    MidiFileDecoder(midi_file *file);
+    MidiFileDecoder(midi_file *file, const char *filename);
 
-    bool parseFile(const char *filename);
+    midi_track *get_midi_tracks();
 };
 
 #endif
