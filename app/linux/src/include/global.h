@@ -32,7 +32,7 @@
 
 typedef enum {
 	START,
-	RUNNING_STATUS,
+	RUNNING,
 	DONE
 } state;
 
@@ -88,9 +88,9 @@ typedef struct midi_file {
 	midi_track *tracks;
 	unsigned int bpm;
 	FILE *drv_ptr;
-	int connfd;
-	int s, slen;
-	struct sockaddr_in si_other;
+	int connfd, net_socket;
+	socklen_t net_socket_len;
+	struct sockaddr_in remote_net_socket_in;
 
 } midi_file;
 
