@@ -8,30 +8,21 @@
  */
 #include <time.h>
 #include <stdio.h>
-#include "include/ByteReader.h"
+#include <MacTypes.h>
+#include <IOKit/IODataQueueClient.h>
+#include "include/global.h"
+#include "include/Network.h"
 #include "include/MidiTrackDecoder.h"
 #include "include/MidiFileDecoder.h"
+#include "include/Midi.h"
+
 
 midi_file *m_file;
 
-void udp_stream(unsigned char *midi_ascii_data) {
-	sendto(m_file->net_socket, midi_ascii_data, strlen((char *)midi_ascii_data), 0, (sockaddr *)&(m_file->remote_net_socket_in), m_file->net_socket_len);
-}
-
-void midi_command_to_ascii(unsigned char *midi_data, unsigned char *midi_ascii_data) {
-	char midi_command_format[] = "%02x %02x %02x %02x\r\n";
-	snprintf((char *)midi_ascii_data, strlen(midi_command_format), midi_command_format,
-			midi_data[0],
-			midi_data[1],
-			midi_data[2],
-			midi_data[3]
-	);
-}
-
 void wait_for(unsigned int delta_time) {
 	if (delta_time > 0) {
-				usleep(delta_time* m_file->bpm*1000/ m_file->time_division);
-			}
+		usleep(delta_time* m_file->bpm*1000/ m_file->time_division);
+	}
 }
 
 void *play_midi_track_udp(void *track_data)
@@ -51,8 +42,8 @@ void *play_midi_track_udp(void *track_data)
 	while (midi_track_decoder->get_state() != DONE) {
 		delta_time = midi_track_decoder->get_next_delta_time();
 		midi_data = midi_track_decoder->decode_next_state();
-		midi_command_to_ascii(midi_data, midi_ascii_data);
-		udp_stream(midi_ascii_data);
+		Midi::midi_command_to_ascii(midi_data, midi_ascii_data);
+		Network::send_udp_packet(midi_ascii_data, m_file);
 		wait_for(delta_time);
 	}
 
@@ -75,8 +66,8 @@ void hold_pedal(bool down_state) {
 		pedal_midi_command[3] = 0x00;
 	}
 
-	midi_command_to_ascii(pedal_midi_command, pedal_ascii_data);
-	udp_stream(pedal_ascii_data);
+	Midi::midi_command_to_ascii(pedal_midi_command, pedal_ascii_data);
+	Network::send_udp_packet(pedal_ascii_data, m_file);
 }
 
 void playMidi_udp()

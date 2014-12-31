@@ -3,13 +3,47 @@ cmake_minimum_required(VERSION 2.6)
 #Name your project here
 project(smartmusic)
 
-#This tells CMake to fib.c and name it fibonacci
-# add_definitions("-stdlib=libstdc++ -lstdc++")
-add_executable(
-    smartmusic
+set(
+    smartmusic_project_sources
+    app/linux/src/Network.cpp
+    app/linux/src/Midi.cpp
     app/linux/src/ByteReader.cpp
     app/linux/src/MidiTrackReader.cpp
     app/linux/src/MidiFileDecoder.cpp
     app/linux/src/MidiTrackDecoder.cpp
-    app/linux/src/smartMusic.cpp
 )
+
+add_executable(
+    smartmusic
+    app/linux/src/smartMusic.cpp
+    ${smartmusic_project_sources}
+)
+
+
+################################
+# Unit Tests
+################################
+include_directories(
+    /Users/haleeq/dev/cpp/test/include
+)
+
+link_directories(
+    /Users/haleeq/dev/cpp/test/libs
+)
+
+set(
+    test_sources
+    app/linux/test/test_midi.cpp
+    app/linux/test/test_network.cpp
+)
+
+add_executable(
+    runUnitTests
+    ${smartmusic_project_sources}
+    ${test_sources}
+)
+
+# Link test executable against gtest & gtest_main
+target_link_libraries(runUnitTests gtest gtest_main gmock gmock_main)
+
+add_test(runUnitTests runUnitTests)
