@@ -34,7 +34,6 @@ link_directories(
 set(
     test_sources
     app/linux/test/test_midi.cpp
-    app/linux/test/test_network.cpp
 )
 
 add_executable(

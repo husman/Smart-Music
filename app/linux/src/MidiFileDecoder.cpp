@@ -41,7 +41,7 @@ bool MidiFileDecoder::initialize() {
     }
 
     m_file->format = (unsigned short) ((0 | data[0]) << 8) | data[1];
-    printf("got [FROMAT]: %02x %02x = %d\n", data[0], data[1], m_file->format);
+    printf("got [FORMAT]: %02x %02x = %d\n", data[0], data[1], m_file->format);
 
     // Midi number of tracks
     if(reader->read_bytes(data, 2) < 2) {
