@@ -19,6 +19,8 @@ add_executable(
     ${smartmusic_project_sources}
 )
 
+target_link_libraries(smartmusic pthread)
+
 
 ################################
 # Unit Tests

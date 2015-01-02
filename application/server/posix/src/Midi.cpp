@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <GSS/GSS.h>
 #include "include/Midi.h"
 
 Midi::Midi(midi_file *m_file) {
