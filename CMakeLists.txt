@@ -1,21 +1,21 @@
-#Specify the version being used aswell as the language
 cmake_minimum_required(VERSION 2.6)
-#Name your project here
+
+# For MS Visual Studio
 project(smartmusic)
 
 set(
     smartmusic_project_sources
-    app/linux/src/Network.cpp
-    app/linux/src/Midi.cpp
-    app/linux/src/ByteReader.cpp
-    app/linux/src/MidiTrackReader.cpp
-    app/linux/src/MidiFileDecoder.cpp
-    app/linux/src/MidiTrackDecoder.cpp
+    application/server/posix/src/Network.cpp
+    application/server/posix/src/Midi.cpp
+    application/server/posix/src/ByteReader.cpp
+    application/server/posix/src/MidiTrackReader.cpp
+    application/server/posix/src/MidiFileDecoder.cpp
+    application/server/posix/src/MidiTrackDecoder.cpp
 )
 
 add_executable(
     smartmusic
-    app/linux/src/smartMusic.cpp
+    application/server/posix/src/smartMusic.cpp
     ${smartmusic_project_sources}
 )
 
@@ -33,7 +33,7 @@ link_directories(
 
 set(
     test_sources
-    app/linux/test/test_midi.cpp
+    application/server/posix/test/test_midi.cpp
 )
 
 add_executable(
