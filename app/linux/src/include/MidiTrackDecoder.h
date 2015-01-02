@@ -8,6 +8,7 @@ private:
     midi_file *m_file;
     MidiTrackReader *reader;
     state current_state;
+    bool running_status;
 
     unsigned char get_next_midi_code();
 

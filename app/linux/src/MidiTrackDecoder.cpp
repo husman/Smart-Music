@@ -13,56 +13,63 @@ state MidiTrackDecoder::get_state() {
 unsigned int MidiTrackDecoder::get_next_delta_time() {
     unsigned int delta_time = 0;
     unsigned char byte = 0;
-    bool running_status;
 
+    delta_time = 0;
     if(reader->read_track_byte(&byte) < 1) {
         current_state = DONE;
-        printf("could not read 1\n");
-        return delta_time;
+        exit(-1);
     }
     delta_time = delta_time | byte;
 
-    running_status = (byte & 0x80) == 0x80;
-    while(running_status) {
+    while ((byte & 0x80) == 0x80) {
         if(reader->read_track_byte(&byte) < 1) {
-            printf("could not read 2\n");
             current_state = DONE;
-            return delta_time;
+            exit(-1);
         }
         delta_time = ((delta_time & 0x7F) << 7) | (byte & 0x7F);
-        running_status = (byte & 0x80) == 0x80;
     }
+
+
+    if(reader->read_track_byte(&byte) < 1) {
+        current_state = DONE;
+        exit(-1);
+    }
+
+    if ((byte & 0x80) == 0x80)
+        running_status = 0;
+    else
+        running_status = 1;
+
+    reader->unread_track_byte();
 
     return delta_time;
 }
 
 unsigned char MidiTrackDecoder::get_next_midi_code() {
-    unsigned char code;
-    bool running_status;
+    static unsigned char code;
 
-    if(reader->read_track_byte(&code) < 1) {
+    if (reader->read_track_byte(&code) < 1) {
         current_state = DONE;
-        return code;
-    }
-
-    running_status = (code & 0x80) != 0x80;
-    if (running_status) {
-        reader->unread_track_byte();
+        exit(-1);
     }
 
     return code;
 }
 
 unsigned char *MidiTrackDecoder::decode_next_state() {
-    unsigned char read_bytes[3], midi_data[4];
-    unsigned char code, read_byte = 0;
+    unsigned char *midi_data = (unsigned char *)malloc(sizeof(unsigned char )*4);
+    unsigned char read_bytes[3];
+    static unsigned char code;
+    unsigned char read_byte = 0;
     unsigned char *text_data;
     unsigned int i = 0;
     unsigned char midi_ascii_data[100];
     unsigned char time_numerator, time_denominator, metronome_ticks, notes_pqn;
     unsigned int bpm = 0;
 
-    code = get_next_midi_code();
+    if(!running_status) {
+        code = get_next_midi_code();
+    }
     switch (code & 0xF0) {
         case NOTE_ON:
             if(reader->read_track_bytes(read_bytes, 2) < 2) {

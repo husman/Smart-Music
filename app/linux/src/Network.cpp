@@ -61,7 +61,6 @@ void Network::playMidi_udp()
         thread_args->track_num = i;
 
         t_rets[i] = pthread_create(&threads[i], NULL, play_midi_track_udp_ts, thread_args);
-        midi->wait_for(midi->file->tracks[i].delta_time);
     }
 
     // Create independent threads each of which will execute function
