@@ -14,9 +14,7 @@
 #include "include/Midi.h"
 
 
-midi_file *m_file;
-
-// Using the custom usb drivers,
+// Using the custom usb driver,
 // This main will send the signals
 // over to a UDP players.
 #define BUFLEN 512
@@ -67,7 +65,6 @@ int main(void)
 		file.net_socket = net_socket;
 		file.remote_net_socket_in = remote_net_socket_in;
 		file.net_socket_len = net_socket_len;
-		m_file = &file;
 
 		Midi *midi = new Midi(&file);
 
